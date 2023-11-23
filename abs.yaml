@@ -1,0 +1,8 @@
+channels:
+  - https://staging.continuum.io/prefect/fs/sse2neon-feedstock/pr1/2db7183
+  - https://staging.continuum.io/prefect/fs/armadillo-feedstock/pr1/5575912
+  - https://staging.continuum.io/prefect/fs/ensmallen-feedstock/pr1/a8ee93d
+  - https://staging.continuum.io/prefect/fs/superlu-feedstock/pr1/8b4d370
+
+upload_channels:
+  - sfe1ed40
