@@ -16,7 +16,8 @@ source:
 
 build:
   number: 0
-  skip: true  # [win or py<36]
+  # Skipping on s390x because rapidjson isn't available on s390x.
+  skip: true  # [s390x or py<36]
   script:
     - {{ PYTHON }} -m pip install . -v --no-deps --no-build-isolation
   ignore_run_exports:
