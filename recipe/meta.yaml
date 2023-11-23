@@ -18,8 +18,10 @@ build:
   number: 0
   # Skipping on s390x because rapidjson isn't available on s390x.
   skip: true  # [s390x or py<36]
+  # Skip on Windows due to cmake not finding boost correctly and Windows is not needed for snowflake.
+  skip: true  # [win]
   script:
-    - {{ PYTHON }} -m pip install . -v --no-deps --no-build-isolation
+    - {{ PYTHON }} -m pip install . -v --no-deps --no-build-isolation --global-option --cmake-generator=Ninja
   ignore_run_exports:
     # spdlog is used in header only mode.
     # See https://github.com/VowpalWabbit/vowpal_wabbit/blob/9.9.0/ext_libs/ext_libs.cmake#L23.
@@ -30,7 +32,7 @@ build:
 requirements:
   build:
     - cmake >=3.13
-    - make
+    - ninja
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - patch  # [not win]
