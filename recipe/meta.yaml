@@ -43,19 +43,20 @@ requirements:
     - libboost {{ boost }}
     - py-boost {{ boost }}
     - zlib {{ zlib }}
-    - spdlog >=1.9.2
-    - rapidjson  >=1.1.0
-    - fmt >=8.1.1
-    - eigen >=3.4.0
-    - armadillo
-    - ensmallen
-    - sse2neon  # [arm64 or aarch64 or ppc64le]
+    - spdlog 1.11.0  # >= 1.9.2  (header only)
+    - rapidjson 1.1.0  # >=1.1.0 (header only)
+    - fmt 9.1.0  # >=8.1.1 (fmt has a run_exports on the major version)
+    - eigen 3.4.0  # >= 3.4.0 (header only)
+    - armadillo 12.6.6  # No version specified upstream and used in header only mode
+    - ensmallen 2.20.0 # No version specified upstream and used in header only mode
+    # No version specified upstream and used in header only mode.
+    - sse2neon  1.6.0 # [arm64 or aarch64 or ppc64le]
     - setuptools
     - wheel
   run:
     - python
     - zlib
-    - rapidjson
+    - {{ pin_compatible('rapidjson') }}  # no run_exports on rapidjson
     - fmt
     - py-boost
 
@@ -67,6 +68,7 @@ test:
     - vowpalwabbit
   commands:
     - pip check
+    # test_ccb_and_automl requires package vw_executor
     - python -m pytest -v python/tests/ -k "not test_ccb_and_automl"
   requires:
     - pip
