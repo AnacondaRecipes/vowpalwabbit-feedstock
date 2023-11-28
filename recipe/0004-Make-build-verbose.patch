@@ -1,0 +1,25 @@
+From 0e2bbb81e9eb5be060ae14812de2b25383727ed0 Mon Sep 17 00:00:00 2001
+From: Jean-Christophe Morin <jcmorin@anaconda.com>
+Date: Wed, 22 Nov 2023 15:01:09 -0500
+Subject: [PATCH] Make build verbose
+
+---
+ setup.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/setup.py b/setup.py
+index d789e5c8c..81992a492 100644
+--- a/setup.py
++++ b/setup.py
+@@ -174,7 +174,7 @@ class BuildPyLibVWBindingsModule(_build_ext):
+         os.chdir(str(self.build_temp))
+         self.spawn(["cmake"] + cmake_args + [str(here)])
+         if not self.dry_run:
+-            self.spawn(["cmake", "--build", "."] + build_args)
++            self.spawn(["cmake", "--build", ".", "-v"] + build_args)
+         os.chdir(str(here))
+ 
+ 
+-- 
+2.42.1
+

@@ -11,43 +11,54 @@ source:
   patches:
     - 0001-Use-system-dependencies.patch
     - 0002-Apply-CMAKE_ARGS-if-set.patch
-
+    - 0003-system-ensmallen-and-armadillo.patch
+    - 0004-Make-build-verbose.patch
 
 build:
-  number: 2
+  number: 0
+  # Skipping on s390x because rapidjson isn't available on s390x.
+  skip: true  # [s390x or py<36]
+  # Skip on Windows due to cmake not finding boost correctly and Windows is not needed for snowflake.
   skip: true  # [win]
   script:
-    - {{ PYTHON }} -m pip install . -vv
+    - {{ PYTHON }} -m pip install . -v --no-deps --no-build-isolation --global-option --cmake-generator=Ninja
+  ignore_run_exports:
+    # spdlog is used in header only mode.
+    # See https://github.com/VowpalWabbit/vowpal_wabbit/blob/9.9.0/ext_libs/ext_libs.cmake#L23.
+    - spdlog
+    # Armadillo is used in header only mode
+    - armadillo
 
 requirements:
   build:
-    - python                                 # [build_platform != target_platform]
-    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
     - cmake >=3.13
-    - make
+    - ninja
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - patch  # [not win]
+    - m2-patch  # [win]
   host:
     - pip
     - python
-    - libboost-python-devel
-    - libboost-devel
-    - tox
-    - zlib
-    - spdlog
-    - rapidjson
-    - fmt
-    - eigen
-    - armadillo
-    - ensmallen
-    - sse2neon  # [arm64 or aarch64 or ppc64le]
+    - libboost {{ boost }}
+    - py-boost {{ boost }}
+    - zlib {{ zlib }}
+    - spdlog 1.11.0  # >= 1.9.2  (header only)
+    - rapidjson 1.1.0  # >=1.1.0 (header only)
+    - fmt 9.1.0  # >=8.1.1 (fmt has a run_exports on the major version)
+    - eigen 3.4.0  # >= 3.4.0 (header only)
+    - armadillo 12.6.6  # No version specified upstream and used in header only mode
+    - ensmallen 2.20.0 # No version specified upstream and used in header only mode
+    # No version specified upstream and used in header only mode.
+    - sse2neon  1.6.0 # [arm64 or aarch64 or ppc64le]
+    - setuptools
+    - wheel
   run:
     - python
     - zlib
-    - spdlog
-    - rapidjson
+    - {{ pin_compatible('rapidjson') }}  # no run_exports on rapidjson
     - fmt
-    - eigen
+    - py-boost
 
 test:
   source_files:
@@ -57,7 +68,8 @@ test:
     - vowpalwabbit
   commands:
     - pip check
-    - python -m pytest python/tests/ -k "not test_ccb_and_automl"  # [python_impl == "cpython" and linux64]
+    # test_ccb_and_automl requires package vw_executor
+    - python -m pytest -v python/tests/ -k "not test_ccb_and_automl"
   requires:
     - pip
     - pytest
@@ -67,10 +79,19 @@ test:
     - scikit-learn
 
 about:
-  home: https://github.com/VowpalWabbit/vowpal_wabbit
-  summary: Vowpal Wabbit Python package
+  home: https://vowpalwabbit.org/
+  summary: Vowpal Wabbit is a machine learning system which pushes the frontier of machine learning with techniques such as online, hashing, allreduce, reductions, learning2search, active, and interactive learning.
+  description: |
+    Vowpal Wabbit is a machine learning system which pushes the frontier of machine learning with
+    techniques such as online, hashing, allreduce, reductions, learning2search, active, and interactive
+    learning. There is a specific focus on reinforcement learning with several contextual bandit
+    algorithms implemented and the online nature lending to the problem well. Vowpal Wabbit is a
+    destination for implementing and maturing state of the art algorithms with performance in mind.
   license: BSD-3-Clause
+  license_family: BSD
   license_file: LICENSE
+  dev_url: https://github.com/VowpalWabbit/vowpal_wabbit
+  doc_url: https://vowpalwabbit.org/docs/vowpal_wabbit/python/latest/index.html
 
 extra:
   recipe-maintainers:
