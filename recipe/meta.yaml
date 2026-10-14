@@ -15,7 +15,7 @@ source:
     - 0004-Make-build-verbose.patch
 
 build:
-  number: 0
+  number: 1
   # Skipping on s390x because rapidjson isn't available on s390x.
   skip: true  # [s390x or py<36]
   # Skip on Windows due to cmake not finding boost correctly and Windows is not needed for snowflake.
@@ -35,13 +35,14 @@ requirements:
     - ninja
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - {{ stdlib('c') }}
     - patch  # [not win]
     - m2-patch  # [win]
   host:
     - pip
     - python
-    - libboost {{ boost }}
-    - py-boost {{ boost }}
+    - libboost
+    - py-boost
     - zlib {{ zlib }}
     - spdlog 1.11.0  # >= 1.9.2  (header only)
     - rapidjson 1.1.0  # >=1.1.0 (header only)
