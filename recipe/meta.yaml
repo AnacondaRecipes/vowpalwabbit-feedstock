@@ -1,30 +1,29 @@
 {% set name = "vowpalwabbit" %}
-{% set version = "9.9.0" %}
+{% set version = "9.11.2" %}
 
 package:
-  name: {{ name|lower }}
+  name: {{ name }}
   version: {{ version }}
 
 source:
   url: https://github.com/VowpalWabbit/vowpal_wabbit/archive/refs/tags/{{ version }}.tar.gz
-  sha256: 46d206c5b2336ed0c9dc228d34457db4acd9e3ade8b509f8fb426183651984c1
+  sha256: 21352230bf0e4c01fb4da1959a7338e21a3150ca5641eb2328abfc749fd32e77
   patches:
-    - 0001-Use-system-dependencies.patch
-    - 0002-Apply-CMAKE_ARGS-if-set.patch
-    - 0003-system-ensmallen-and-armadillo.patch
-    - 0004-Make-build-verbose.patch
+    - patches/0001-Use-system-dependencies.patch
+    - patches/0002-System-ensmallen-and-armadillo.patch
 
 build:
   number: 0
-  # Skipping on s390x because rapidjson isn't available on s390x.
-  skip: true  # [s390x or py<36]
-  # Skip on Windows due to cmake not finding boost correctly and Windows is not needed for snowflake.
-  skip: true  # [win]
+  # Windows is skipped due to conflicting intel-openmp requirements
+  # between armadillo 12.6.6 and ensmallen 2.20.0.
+  skip: true  # [win or py<310]
+  script_env:
+    - CMAKE_GENERATOR=Ninja
   script:
-    - {{ PYTHON }} -m pip install . -v --no-deps --no-build-isolation --global-option --cmake-generator=Ninja
+    - {{ PYTHON }} -m pip install . -v --no-deps --no-build-isolation
   ignore_run_exports:
     # spdlog is used in header only mode.
-    # See https://github.com/VowpalWabbit/vowpal_wabbit/blob/9.9.0/ext_libs/ext_libs.cmake#L23.
+    # See https://github.com/VowpalWabbit/vowpal_wabbit/blob/122bae254a5b8bc2b774d13b33d53e6dbc2cfba7/ext_libs/ext_libs.cmake#L23
     - spdlog
     # Armadillo is used in header only mode
     - armadillo
@@ -33,32 +32,31 @@ requirements:
   build:
     - cmake >=3.13
     - ninja
+    - {{ stdlib('c') }}
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
-    - patch  # [not win]
-    - m2-patch  # [win]
   host:
     - pip
     - python
-    - libboost {{ boost }}
-    - py-boost {{ boost }}
+    - libboost-devel {{ libboost_devel }}
+    - pybind11
+    - pybind11-abi
     - zlib {{ zlib }}
-    - spdlog 1.11.0  # >= 1.9.2  (header only)
-    - rapidjson 1.1.0  # >=1.1.0 (header only)
-    - fmt 9.1.0  # >=8.1.1 (fmt has a run_exports on the major version)
-    - eigen 3.4.0  # >= 3.4.0 (header only)
-    - armadillo 12.6.6  # No version specified upstream and used in header only mode
-    - ensmallen 2.20.0 # No version specified upstream and used in header only mode
-    # No version specified upstream and used in header only mode.
-    - sse2neon  1.6.0 # [arm64 or aarch64 or ppc64le]
+    - spdlog 1.15.3
+    - rapidjson 1.1.0
+    - fmt 11.2.0
+    - eigen 3.4.0
+    # System dependencies used by upstream CMake.
+    # https://github.com/VowpalWabbit/vowpal_wabbit/blob/9.11.2/ext_libs/ext_libs.cmake#L152-L157
+    - armadillo 12.6.6
+    - ensmallen 2.20.0
+    - sse2neon 1.6.0  # [(osx and arm64) or (linux and aarch64)]
     - setuptools
     - wheel
   run:
     - python
     - zlib
-    - {{ pin_compatible('rapidjson') }}  # no run_exports on rapidjson
-    - fmt
-    - py-boost
+    - {{ pin_compatible('rapidjson') }}
 
 test:
   source_files:
@@ -68,8 +66,9 @@ test:
     - vowpalwabbit
   commands:
     - pip check
-    # test_ccb_and_automl requires package vw_executor
-    - python -m pytest -v python/tests/ -k "not test_ccb_and_automl"
+    # Exclude test_ccb_and_automl (requires vw_executor) and e2e_v2
+    # (excluded upstream due to multiprocessing hangs with pybind11 in CI).
+    - python -m pytest -v python/tests/ --ignore=python/tests/e2e_v2 -k "not test_ccb_and_automl"
   requires:
     - pip
     - pytest

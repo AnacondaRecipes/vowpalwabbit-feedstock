@@ -1,0 +1,19 @@
+diff --git a/ext_libs/ext_libs.cmake b/ext_libs/ext_libs.cmake
+index 674d091da..9c303c01f 100644
+--- a/ext_libs/ext_libs.cmake
++++ b/ext_libs/ext_libs.cmake
+@@ -151,7 +151,12 @@ endif()
+ 
+ if(VW_FEAT_CB_GRAPH_FEEDBACK)
+   add_library(mlpack_ensmallen INTERFACE)
+-  target_include_directories(mlpack_ensmallen SYSTEM INTERFACE ${CMAKE_CURRENT_LIST_DIR}/armadillo-code/include)
+ 
+-  target_include_directories(mlpack_ensmallen SYSTEM INTERFACE ${CMAKE_CURRENT_LIST_DIR}/ensmallen/include)
++  find_path(ARMADILLO_INCLUDE_DIR "armadillo" REQUIRED)
++  message(STATUS "Found armadillo at ${ARMADILLO_INCLUDE_DIR}")
++  target_include_directories(mlpack_ensmallen SYSTEM INTERFACE "${ARMADILLO_INCLUDE_DIR}")
++
++  find_path(ENSMALLEN_INCLUDE_DIR "ensmallen.hpp" REQUIRED)
++  message(STATUS "Found ensmallen at ${ENSMALLEN_INCLUDE_DIR}")
++  target_include_directories(mlpack_ensmallen SYSTEM INTERFACE "${ENSMALLEN_INCLUDE_DIR}")
+ endif()

@@ -1,0 +1,18 @@
+diff --git a/setup.py b/setup.py
+index 40df18b87..a8a8a7c6e 100644
+--- a/setup.py
++++ b/setup.py
+@@ -119,6 +119,13 @@ class BuildPyLibVWBindingsModule(_build_ext):
+             "-DWARNINGS=Off",
+             "-DVW_FEAT_CB_GRAPH_FEEDBACK=On",
+             "-DVW_SIMD_INV_SQRT=Off",  # Use std::sqrt for reproducible results
++            "-DRAPIDJSON_SYS_DEP=On",
++            "-DFMT_SYS_DEP=On",
++            "-DSPDLOG_SYS_DEP=On",
++            "-DVW_BOOST_MATH_SYS_DEP=On",
++            "-DVW_ZLIB_SYS_DEP=On",
++            "-DVW_EIGEN_SYS_DEP=On",
++            "-DVW_SSE2NEON_SYS_DEP=On",
+         ]
+ 
+         # This doesn't work as expected for Python3.6 and 3.7 on Windows.
