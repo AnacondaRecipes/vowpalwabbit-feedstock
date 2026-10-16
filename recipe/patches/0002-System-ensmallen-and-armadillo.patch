@@ -1,3 +1,10 @@
+From: Jean-Christophe Morin <jcmorin@anaconda.com>
+Date: Wed, 22 Nov 2023 11:22:19 -0500
+Subject: [PATCH] Use syetem provided ensmallen and armadillo
+
+Adapted for Vowpal Wabbit 9.11.2.
+
+---
 diff --git a/ext_libs/ext_libs.cmake b/ext_libs/ext_libs.cmake
 index 674d091da..9c303c01f 100644
 --- a/ext_libs/ext_libs.cmake

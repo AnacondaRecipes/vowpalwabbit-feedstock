@@ -27,11 +27,13 @@ build:
     - spdlog
     # Armadillo is used in header only mode
     - armadillo
+    # Boost.Math is used through headers without dynamic linking to libboost.
+    - libboost
 
 requirements:
   build:
     - cmake >=3.13
-    - ninja
+    - ninja-base
     - {{ stdlib('c') }}
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
@@ -48,7 +50,7 @@ requirements:
     - eigen 3.4.0
     # System dependencies used by upstream CMake.
     # https://github.com/VowpalWabbit/vowpal_wabbit/blob/9.11.2/ext_libs/ext_libs.cmake#L152-L157
-    - armadillo 12.6.6
+    - armadillo {{ armadillo }}
     - ensmallen 2.20.0
     - sse2neon 1.6.0  # [(osx and arm64) or (linux and aarch64)]
     - setuptools
